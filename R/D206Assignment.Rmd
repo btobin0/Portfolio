@@ -1,0 +1,53 @@
+---
+title: "D206_Assignment"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Hypothesis Question
+
+Patient re-admittance could be lessened if Vitamin-D levels are within a specific range.
+
+## Loading dataset
+
+```{r find CD}
+getwd()
+```
+
+```{r set_WD}
+setwd('~/D206_Assignment_Files')
+```
+
+```{r validate_WD}
+getwd()
+```
+
+```{r library}
+library('tidyverse')
+
+```
+
+```{r read_datafile}
+df <- read_csv('medical_raw_data.csv')
+df.head()
+```
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+---
+title: "D206 Intro"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r set_working_directory}
+setwd('c:/Users/btobi/OneDrive/Documents/D206WebsiteDataSets')
+
+```
+
+```{r library}
+library('tidyverse')
+
+```
+
+```{r read_datafile}
+df <- read_csv('boston_housing_data.csv')
+```
+
+```{r read_file}
+head(df,5)
+```
+

@@ -1,0 +1,189 @@
+---
+title: "D206-Case-Study"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+#import libraries
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(readxl)
+library(ggpmisc)
+library(class)
+library(psych)
+library(factoextra)
+library(dplyr)
+library(car)
+library(gridExtra)
+library(devtools)
+library(ggbiplot)
+library(FactoMineR)
+```
+
+```{r}
+getwd()
+setwd('C:/Users/btobi/OneDrive/Documents/D207Assignment')
+getwd()
+```
+
+```{r}
+df <- read_csv('medical_clean.csv')
+head(df)
+
+```
+
+```{r}
+colnames(df)
+```
+```{r}
+glimpse(df)
+```
+
+```{r}
+colSums(is.na(df))
+```
+
+```{r}
+dfClean <- df %>%
+  mutate(Children=ifelse(is.na(Children), median(Children, na.rm=TRUE), Children)) %>%
+  mutate(Age=ifelse(is.na(Age), median(Age, na.rm=TRUE), Age)) %>%
+  mutate(Soft_drink=ifelse(is.na(Soft_drink), median(Soft_drink, na.rm=TRUE), Soft_drink)) %>%
+  mutate(Overweight=ifelse(is.na(Overweight), median(Overweight, na.rm=TRUE), Overweight)) %>%
+  mutate(Anxiety=ifelse(is.na(Anxiety), median(Anxiety, na.rm=TRUE), Anxiety)) %>%
+  mutate(Income=ifelse(is.na(Income), median(Income, na.rm=TRUE), Income)) %>%
+  mutate(HighBlood = ifelse(HighBlood == "No",0,1)) %>%
+  mutate(Stroke = ifelse(Stroke == "No",0,1)) %>%
+  mutate(Soft_drink = ifelse(Soft_drink == "No",0,1)) %>%
+  mutate(Asthma = ifelse(Asthma == "No",0,1))
+dfClean <- dfClean[-c(4:15,18:21,30:34,43:53)]
+glimpse(dfClean)
+```
+
+```{r}
+colSums(is.na(dfClean))
+```
+
+```{r find_duplicates}
+dfClean[duplicated(dfClean),]
+```
+
+```{r}
+write.csv(dfClean,'~/D206_Assignment_Files/MedicalHospitalStudyClean2.csv')
+
+df2 <- read_csv('~/D206_Assignment_Files/MedicalHospitalStudyClean2.csv')
+```
+
+```{r}
+glimpse(df2)
+colSums(is.na(df2))
+df2[duplicated(df2),]
+```
+
+```{r}
+ifelse(is.na(df2), "Has NA", "NA FREE")
+```
+
+```{r}
+apply(df2,2,var)
+
+```
+```{r}
+glimpse(df2)
+```
+
+```{r}
+df2.pca <- prcomp(df2[,c(6,8:9,12)], center = TRUE, scale. = TRUE)
+```
+
+```{r}
+summary(df2.pca)
+```
+
+```{r}
+str(df2.pca)
+```
+
+```{r}
+ggbiplot(df2.pca)
+```
+
+```{r}
+eig.val <-get_eigenvalue(df2.pca)
+```
+
+```{r}
+plot(df2.pca, type = "l")
+```
+
+```{r}
+ev = df2.pca$sdev^2
+```
+
+
+
+```{r}
+evplot = function(ev) {
+  n = length(ev)
+  bsm = data.frame(j=seq(1:n), p=0)
+  bsm$p[1] = 1/n
+  for (i in 2:n) bsm$p[i] = bsm$p[i-1] + (1/(n + 1 - i))
+  bsm$p = 100*bsm$p/n
+  op = par(mfrow=c(2,1),omi=c(0.1,0.3,0.1,0.1), mar=c(1, 1, 1, 1))
+  barplot(ev, main="Eigenvalues", col="bisque", las=2)
+  abline(h=mean(ev), col="red")
+  legend("topright", "Average eigenvalue", lwd=1, col=2, bty="n")
+  barplot(t(cbind(100*ev/sum(ev), bsm$p[n:1])), beside=TRUE, 
+          main="% variation", col=c("bisque",2), las=2)
+  legend("topright", c("% eigenvalue", "Broken stick model"), 
+         pch=15, col=c("bisque",2), bty="n")
+  par(op)
+}
+
+evplot(ev)
+
+```
+
+```{r}
+fviz_eig(df2.pca, addlabels = TRUE, ylim = c(0,50))
+```
+
+```{r}
+var  <- get_pca_var(df2.pca)
+var
+head(var$coord, 4)
+```
+
+```{r}
+fviz_contrib(df2.pca, choice = "var", axes = 1, top = 10)
+```
+
+```{r}
+fviz_contrib(df2.pca, choice = "var", axes = 2, top = 10)
+```
+
+```{r}
+fviz_pca_var(df2.pca, col.var = "black")
+
+```
+
+```{r}
+fviz_pca_var(df2.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
+```
+
+```{r}
+fviz_pca_var(df2.pca, col.var = "coord",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
+```
+
+
+

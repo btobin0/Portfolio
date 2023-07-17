@@ -1,0 +1,355 @@
+---
+title: "D207"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r libraries}
+
+library(tidyverse)
+library(dplyr)
+library(car)
+library(ggplot2)
+library(gplots)
+library(vcd)
+library(corrplot)
+library(graphics)
+```
+
+
+```{r setWorkingDirectory}
+getwd()
+setwd('~/D207Assignment')
+getwd()
+```
+
+```{r ReadCSV}
+df <- read_csv('medical_clean.csv')
+head(df)
+
+```
+
+```{r columnNames}
+colnames(df)
+```
+
+```{r DataSnapshot}
+glimpse(df)
+```
+
+```{r}
+colSums(is.na(df))
+```
+```{r}
+#dfClean <- df[-c(4:15,18:21,30:34,43:53)]
+df %>%
+  mutate(HighBlood = ifelse(HighBlood == "No",0,1)) %>%
+  mutate(Stroke = ifelse(Stroke == "No",0,1)) %>%
+  mutate(Soft_drink = ifelse(Soft_drink == "No",0,1)) %>%
+  mutate(Diabetes = ifelse(Diabetes == "No",0,1)) %>%
+  mutate(BackPain = ifelse(BackPain == "No",0,1)) %>%
+  mutate(Asthma = ifelse(Asthma == "No",0,1))
+dfChomp <- df[-c(1:18,21:27,29:39,41:50)]
+```
+
+```{r}
+glimpse(dfChomp)
+```
+
+
+
+```{r}
+ggplot(dfChomp, aes(x=dfChomp$Stroke, y=dfChomp$Initial_days)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(dfChomp, aes(x=dfChomp$ReAdmis, y=dfChomp$Initial_days)) +
+  geom_boxplot()
+```
+
+
+
+
+```{r}
+assoc(head(dfChomp, 5), shade = TRUE, las=3)
+```
+
+```{r}
+chisqReAdmis <- chisq.test(dfChomp$Gender, dfChomp$ReAdmis, correct=FALSE)
+chisqReAdmis
+chisqReAdmis$observed
+```
+
+```{r}
+chisqID <- chisq.test(dfChomp$Gender, dfChomp$Initial_days, correct=FALSE)
+chisqID
+#chisqID$observed
+```
+
+
+
+
+```{r}
+chisqStroke <- chisq.test(dfChomp$Gender, dfChomp$Stroke, correct=FALSE)
+chisqStroke
+chisqStroke$observed
+```
+
+```{r}
+round(chisqStroke$expected,2)
+```
+
+```{r}
+round(chisqStroke$residuals, 4)
+
+```
+
+```{r}
+contrib <- 100*chisqStroke$residuals^2/chisqStroke$statistic
+round(contrib, 3)
+```
+
+```{r}
+corrplot(chisqStroke$residuals, is.cor = TRUE)
+
+
+```
+
+```{r}
+corrplot(contrib, is.cor = FALSE)
+
+```
+
+```{r}
+chisqStroke$p.value
+# printing the mean
+chisqStroke$estimate
+```
+
+```{r}
+ggplot(df, aes(x=dfChomp$ReAdmis, 
+               y=dfChomp$Initial_days)) +
+                geom_boxplot()
+```
+
+```{r}
+ggplot(df, aes(x=df$Initial_admin, 
+               y=df$Readmis)) +
+                geom_boxplot()
+```
+
+
+```{r}
+ggplot(df, aes(x=df$Age, 
+               y=df$BackPain)) +
+                geom_boxplot()
+```
+
+```{r}
+ggplot(df, aes(x=df$Age >= 40, 
+               y=df$Full_meals_eaten)) +
+                geom_boxplot()
+```
+
+```{r}
+ggplot(df, aes(x=df$Area, 
+               y=df$Full_meals_eaten)) +
+                geom_boxplot()
+```
+
+```{r}
+ggplot(df, aes(x=df$Age, 
+               y=df$Children >= 5)) +
+                geom_boxplot()
+```
+
+
+```{r}
+ggplot(dfClean, aes(x=Income/1000)) +
+  ggtitle("Income (Thousands)") +
+  xlab("Income") + 
+  geom_histogram(binwidth = 10) 
+```
+
+```{r}
+ggplot(dfClean, aes(x=Area)) +
+  ggtitle("Area") +
+  xlab("Area") +
+  geom_bar()
+```
+
+```{r}
+ggplot(dfClean, aes(x=Age)) +
+  ggtitle("Age") +
+  xlab("Age") +
+  geom_boxplot(notch=TRUE)
+```
+
+```{r}
+pie(table(dfClean$Gender))
+```
+
+```{r}
+ggplot(df, aes(fill=Gender,x=State, y=Gender)) +
+  ggtitle("Gender By State") +
+  geom_bar(stat="identity") +
+  geom_point()
+
+```
+
+```{r}
+ggplot(dfClean, aes(fill=Gender,x=Marital, y=Gender)) +
+  ggtitle("Marital and Gender Ratio") +
+  geom_bar(stat="identity")
+```
+
+```{r}
+sd(dfClean[['ReAdmis']])
+IQR(dfClean[['ReAdmis']])
+mad(dfClean[['ReAdmis']])
+
+```
+
+```{r}
+quantile(dfClean[['ReAdmis']], p=c(.05, .25, .5, .75, .95))
+```
+
+```{r}
+quantile(dfClean[['Initial_days']], p=c(.05, .25, .5, .75, .95))
+```
+
+```{r}
+quantile(dfClean[['Age']], p=c(.05, .25, .5, .75, .95))
+```
+```{r}
+glimpse(df)
+```
+
+
+
+
+
+```{r}
+inc <- cor(df[,c('Income','TotalCharge','Additional_charges','Initial_days')])
+corrplot(cor(inc), methoc='ellipse')
+```
+
+```{r}
+summary(df$Age)
+```
+
+```{r}
+summary(df$Initial_days)
+```
+
+```{r}
+summary(df$VitD_levels)
+```
+
+```{r}
+summary(df$TotalCharge + df$Additional_charges)
+```
+
+```{r}
+chisqra <- chisq.test(dfClean$ReAdmis)
+chisqra
+chisqa <- chisq.test(dfClean$Age)
+chisqa
+chisqid <- chisq.test(dfClean$Initial_days)
+chisqid
+chisqii <- chisq.test(dfClean$Income)
+chisqii
+```
+
+````{r}
+chisqra$observed
+chisqa$observed
+chisqid$observed
+chisqii$observed
+```
+
+```{r}
+round(chisqra$expected,2)
+round(chisqa$expected,2)
+round(chisqid$expected,2)
+round(chisqii$expected,2)
+```
+
+
+
+```{r}
+    m <- df[dfClean$Gender == 'Male','Initial_days']
+    f <- df[dfClean$Gender == 'Female','Initial_days']
+    t.test(m,f)
+```
+
+
+
+
+
+```{r}
+    m <- df[dfClean$Gender == 'Male','Age']
+    f <- df[dfClean$Gender == 'Female','Age']
+    t.test(m,f)
+```
+
+```{r}
+    m <- df[dfClean$Gender == 'Male','TotalCharge']
+    f <- df[dfClean$Gender == 'Female','TotalCharge']
+    t.test(m,f)
+```
+
+
+```{r}
+
+
+
+plot(dfClean$Initial_days, dfClean$Additional_charges, ylab='Additional_charges',
+     xlab='Initial_days')
+
+
+```
+
+```{r}
+
+
+
+plot(dfClean$Initial_days, dfClean$Additional_charges, ylab='Age',
+     xlab='Initial_days')
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
